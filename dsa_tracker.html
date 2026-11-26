@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DSA prep tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1B2130; --muted:#5F6878; --line:#DFE3EA; --hover:#EEF1F6;
+  --accent:#3D63DD; --p0:#B4410F; --p1:#1D4ED8; --p2:#6D28D9; --star:#D99A00;
+  --t0:#7D838E; --t1:#2E9E46; --t2:#0F9C98; --t3:#3D63DD; --t4:#9B3FC4; --t5:#DB8400; --t6:#E0383B;
+  --display:"Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#12151C; --surface:#1A1E27; --ink:#E7E9EE; --muted:#9AA2B1; --line:#2B313D; --hover:#222834;
+    --accent:#7C9BFF; --p0:#FB923C; --p1:#7AA2FF; --p2:#B794F6; --star:#F5C04A;
+    --t0:#A0A6B0; --t1:#4CC266; --t2:#2CC4BF; --t3:#7C9BFF; --t4:#C57AE8; --t5:#F2A32E; --t6:#FF6467;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+.wrap{max-width:1120px; margin:0 auto; padding:0 20px}
+
+/* Hero: the rank is the one bold element */
+.hero{padding:calc(36px + env(safe-area-inset-top,0px)) 0 24px}
+.hero h1{font-family:var(--display); font-weight:600; font-size:17px; margin:0 0 18px; color:var(--muted)}
+.rank-row{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px}
+.rank{font-family:var(--display); font-weight:700; font-size:clamp(40px,7vw,68px); line-height:1; letter-spacing:-0.02em;
+  color:var(--tier); transition:color .4s}
+.rank-sub{color:var(--muted); margin-top:10px}
+.rank-sub strong{color:var(--ink); font-weight:700}
+.stats{display:flex; gap:22px; flex-wrap:wrap}
+.stat{min-width:64px}
+.stat b{display:block; font-family:var(--display); font-size:20px; font-weight:600}
+.stat span{font-size:13px; color:var(--muted)}
+
+.track{position:relative; height:10px; background:var(--line); border-radius:5px; margin-top:22px; overflow:hidden}
+.track .fill{position:absolute; inset:0 auto 0 0; width:0; background:var(--tier); border-radius:5px; transition:width .35s, background .4s}
+.track .tick{position:absolute; top:0; bottom:0; width:2px; background:var(--bg)}
+.tiers{position:relative; height:18px; font-size:12px; color:var(--muted); margin-top:6px}
+.tiers span{position:absolute; transform:translateX(-50%); white-space:nowrap}
+@media (max-width:640px){ .tiers{display:none} }
+
+/* Toolbar */
+.toolbar{position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px)}
+.toolbar .wrap{display:flex; flex-wrap:wrap; gap:10px; padding-top:12px; padding-bottom:12px; align-items:center}
+.search{flex:1 1 220px; min-width:180px; padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+select{padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+.btn{padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); cursor:pointer}
+.btn:hover{background:var(--hover)}
+.btn.danger{color:var(--p0)}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+
+/* Layout */
+.layout{display:grid; grid-template-columns:230px 1fr; gap:32px; padding-top:24px; padding-bottom:64px}
+.toc{position:sticky; top:76px; align-self:start; max-height:calc(100vh - 96px); overflow:auto}
+.toc a{display:flex; justify-content:space-between; gap:8px; padding:6px 10px; border-radius:6px; color:var(--muted);
+  text-decoration:none; font-size:13.5px}
+.toc a:hover{background:var(--hover); color:var(--ink)}
+.toc a.complete{color:var(--t1)}
+.toc .n{font-variant-numeric:tabular-nums}
+.toc h3{font-family:var(--display); font-size:13px; font-weight:600; color:var(--muted); margin:16px 10px 6px}
+.toc h3:first-child{margin-top:0}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr; gap:12px}
+  .toc{position:static; max-height:none; display:flex; overflow-x:auto; gap:4px; padding-bottom:6px}
+  .toc h3{display:none}
+  .toc a{flex:0 0 auto; border:1px solid var(--line); background:var(--surface)}
+}
+
+/* Sections */
+section{background:var(--surface); border:1px solid var(--line); border-radius:12px; margin-bottom:18px; scroll-margin-top:80px}
+section.gap{border-left:4px solid var(--accent)}
+.sec-head{display:flex; align-items:center; gap:12px; padding:14px 18px}
+.toggle{flex:1; display:flex; align-items:center; gap:10px; background:none; border:0; padding:0; text-align:left; cursor:pointer}
+.toggle h2{font-family:var(--display); font-size:18px; font-weight:600; margin:0; line-height:1.3}
+.chev{width:10px; height:10px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted);
+  transform:rotate(45deg); transition:transform .2s; flex:0 0 auto; margin:0 4px 4px 2px}
+section.collapsed .chev{transform:rotate(-45deg); margin-bottom:0}
+.pill{font-size:12px; font-weight:700; padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap}
+.pill.P0{color:var(--p0)} .pill.P1{color:var(--p1)} .pill.P2{color:var(--p2)} .pill.Mixed{color:var(--muted)}
+.count{font-variant-numeric:tabular-nums; color:var(--muted); font-size:14px; white-space:nowrap}
+.sec-bar{height:3px; background:var(--line); margin:0 18px}
+.sec-bar i{display:block; height:100%; width:0; background:var(--t1); transition:width .3s}
+.note{color:var(--muted); font-size:13.5px; margin:10px 18px 0}
+ul{list-style:none; margin:0; padding:8px 8px 12px}
+section.collapsed:not(.force-open) ul, section.collapsed:not(.force-open) .note{display:none}
+li{display:flex; align-items:center; gap:4px; border-radius:8px}
+li:hover{background:var(--hover)}
+li label{flex:1; display:flex; align-items:center; gap:12px; padding:8px 10px; cursor:pointer}
+li input{width:18px; height:18px; accent-color:var(--t1); flex:0 0 auto; cursor:pointer}
+li.done .name{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); text-decoration-thickness:1.5px}
+.flag{background:none; border:0; cursor:pointer; font-size:17px; color:var(--line); padding:6px 10px; line-height:1}
+.flag:hover{color:var(--star)}
+.flag[aria-pressed="true"]{color:var(--star)}
+[hidden]{display:none !important}
+.empty{text-align:center; color:var(--muted); padding:48px 16px}
+.legend{color:var(--muted); font-size:13.5px; margin:0 0 14px}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1>DSA prep tracker</h1>
+  <div class="rank-row">
+    <div>
+      <div class="rank" id="rank">Newbie</div>
+      <div class="rank-sub" id="rankSub"></div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="track" id="track"><div class="fill" id="fill"></div></div>
+  <div class="tiers" id="tiers"></div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <label class="sr" for="q">Search topics</label>
+    <input id="q" class="search" type="search" placeholder="Search topics, e.g. Dijkstra">
+    <label class="sr" for="show">Show</label>
+    <select id="show">
+      <option value="all">All topics</option>
+      <option value="remaining">Remaining</option>
+      <option value="done">Completed</option>
+      <option value="flagged">Flagged for revision</option>
+    </select>
+    <label class="sr" for="pri">Priority</label>
+    <select id="pri">
+      <option value="all">All priorities</option>
+      <option value="P0">P0 only</option>
+      <option value="P1">P1 only</option>
+      <option value="P2">P2 only</option>
+    </select>
+    <button class="btn" id="expandAll">Expand all</button>
+    <button class="btn" id="collapseAll">Collapse all</button>
+    <button class="btn" id="exportBtn">Export progress</button>
+    <button class="btn" id="importBtn">Import progress</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <button class="btn danger" id="resetBtn">Reset</button>
+  </div>
+</div>
+
+<div class="layout wrap">
+  <nav class="toc" id="toc" aria-label="Sections"></nav>
+  <main>
+    <p class="legend">Tick a topic once you can explain it, spot when to use it, implement it without help, and state its complexity. Use ☆ to flag a topic for revision. Sections with a blue edge are the gaps that aren’t in the original checklist.</p>
+    <div id="sections"></div>
+    <div class="empty" id="empty" hidden>No topics match. Clear the search or change the filters.</div>
+  </main>
+</div>
+
+<script>
+const SECTIONS = [
+ {id:"a", title:"A. Arrays, searching and sorting", pri:"P0", items:["Linear search","Binary search","Lower bound and upper bound","Binary search on answer / parametric search","Ternary search for unimodal functions","Bubble sort (concepts)","Selection sort (concepts)","Insertion sort (concepts)","Merge sort","Quick sort","Heap sort","Counting sort","Radix sort","Bucket sort","Quickselect / selection algorithm","Inversion counting using merge sort","Coordinate compression","Kadane’s algorithm","Prefix sums and suffix sums","Difference arrays","Dutch National Flag algorithm","Fisher–Yates shuffle"]},
+ {id:"b", title:"B. String algorithms", pri:"P1", items:["Naive pattern matching","KMP (Knuth–Morris–Pratt)","Prefix function / LPS array","Z-algorithm","Rabin–Karp","Rolling hash","Boyer–Moore string search","Manacher’s algorithm","Aho–Corasick multi-pattern matching","Suffix array","LCP (longest common prefix) array","Suffix tree","Suffix automaton","Palindromic tree / Eertree","String periodicity and border finding","Trie and binary trie","Longest common subsequence (LCS)","Longest common substring","Edit distance / Levenshtein distance"]},
+ {id:"c", title:"C. Linked lists, stacks and queues", pri:"P0", items:["Singly linked lists","Doubly linked lists","Reverse linked list (iterative and recursive)","Floyd’s cycle detection","Find middle of linked list","Find cycle entry","Merge two sorted linked lists","Find intersection of linked lists","Remove Nth node from end","Reverse nodes in groups","Copy list with random pointer","Stack implementation","Queue implementation","Deque implementation","Queue using stacks","Stack using queues","Balanced parentheses","Monotonic stack","Next greater element","Next smaller element","Largest rectangle in histogram","Min Stack","Expression parsing and evaluation","Infix to postfix/prefix conversion","Monotonic deque","Sliding window maximum","LRU cache using hash map + doubly linked list"]},
+ {id:"d", title:"D. Binary search and search patterns", pri:"P0", items:["Classic binary search","First and last occurrence","Lower bound / upper bound","Search in rotated sorted array","Find minimum in rotated sorted array","Binary search on answer","Search in 2D matrix","Peak element","Search over an unbounded / unknown-size domain (concept)"]},
+ {id:"e", title:"E. Trees and binary search trees", pri:"P0", items:["Preorder traversal","Inorder traversal","Postorder traversal","Level-order traversal / BFS","Recursive DFS","Iterative DFS","Tree height and depth","Tree diameter","Balanced tree checks","Lowest common ancestor","BST search","BST insertion","BST deletion","Validate a BST","Build tree from traversal arrays","Serialize and deserialize a tree","Path sum and root-to-leaf path problems","Subtree sizes and tree DP","Binary lifting for ancestor queries","Euler tour / tree flattening","Morris traversal","Rerooting DP"]},
+ {id:"f", title:"F. Heaps and priority queues", pri:"P0", items:["Min-heap","Max-heap","Heapify and build-heap complexity","Top K elements","Kth largest / smallest","K-way merge","Merge K sorted lists","Two heaps / median from data stream","Heap-based scheduling","Priority queue with lazy deletion"]},
+ {id:"g", title:"G. Graph algorithms", pri:"P0", items:["Adjacency list","Adjacency matrix","BFS","DFS","Grid traversal and flood fill","Connected components","Cycle detection in directed graphs","Cycle detection in undirected graphs","Topological sort: Kahn’s algorithm","Topological sort using DFS","Bipartite graph checking","Multi-source BFS","Shortest paths in unweighted graphs","0–1 BFS","Dijkstra’s algorithm","Bellman–Ford","Floyd–Warshall","Shortest / longest paths in a DAG","Disjoint Set Union (Union-Find)","Kruskal’s minimum spanning tree","Prim’s minimum spanning tree","Strongly connected components: Kosaraju","Strongly connected components: Tarjan","Bridges and articulation points","Eulerian path and circuit: Hierholzer’s algorithm","Maximum flow: Ford–Fulkerson","Edmonds–Karp maximum flow","Dinic’s maximum-flow algorithm","Minimum cut","Bipartite matching: augmenting paths","Hopcroft–Karp","A* search","Johnson’s all-pairs shortest paths","Graph coloring and backtracking","Tarjan’s offline LCA"]},
+ {id:"h", title:"H. Tries and prefix structures", pri:"P1", items:["Trie insertion, search and prefix queries","Word dictionary with wildcard search","Word search with trie","Binary trie for maximum XOR","Prefix tree vs hash map trade-offs"]},
+ {id:"i", title:"I. Range queries and specialized data structures", pri:"P1", items:["Fenwick tree / Binary Indexed Tree","Segment tree","Lazy propagation","Sparse table for static range queries","Merge sort tree","Persistent segment tree","Cartesian tree","Treap","Balanced BST concepts","Ordered maps and ordered sets","Mo’s algorithm","Heavy-light decomposition","Centroid decomposition","Link-cut tree","Persistent data structures"]},
+ {id:"j", title:"J. Recursion and backtracking", pri:"P0", items:["Recursion trees and base cases","Subsets and subsequences","Permutations and combinations","Combination Sum","N-Queens","Sudoku solver","Word search","Palindrome partitioning","Pruning and constraint propagation","Branch and bound","Hamiltonian path / cycle","Exact cover (advanced concept)"]},
+ {id:"k", title:"K. Greedy algorithms and intervals", pri:"P0", items:["Activity selection / interval scheduling","Interval partitioning / meeting rooms","Merge intervals","Insert interval","Non-overlapping intervals","Jump Game","Gas Station","Job sequencing","Huffman coding","Fractional knapsack","Minimum platforms / event sweeps","Greedy-choice property and exchange arguments","Sweep line with heaps or ordered sets"]},
+ {id:"l", title:"L. Dynamic programming", pri:"P0", items:["Memoization vs tabulation","1D DP","2D DP","Grid DP","0/1 knapsack","Unbounded knapsack","Subset sum","Partition DP","Coin change","Longest common subsequence","Longest increasing subsequence: O(n²) and O(n log n)","Edit distance","Palindrome substring DP","Palindrome subsequence DP","Interval DP","Matrix-chain multiplication","DP on trees","DP on DAGs","Bitmask DP","Digit DP","State compression","Space optimization","Stock buy/sell DP","Probability DP","Rerooting DP","Divide-and-conquer DP optimization","Convex hull trick optimization","Knuth optimization","Meet-in-the-middle"]},
+ {id:"m", title:"M. Bit manipulation", pri:"P1", items:["AND, OR, XOR, NOT","Bit shifts and masks","Check / set / clear / toggle a bit","Power-of-two checks","Count set bits: Brian Kernighan’s algorithm","XOR cancellation patterns","Bitmask enumeration","Subset enumeration","Gray code","Bit reversal","Binary trie for XOR queries","Bitmask DP"]},
+ {id:"n", title:"N. Math and number theory", pri:"P1", items:["Euclidean GCD","LCM","Extended Euclidean algorithm","Sieve of Eratosthenes","Segmented sieve","Primality testing","Prime factorization","Fast exponentiation / binary exponentiation","Modular arithmetic","Modular inverse","Fermat’s little theorem","Chinese remainder theorem","Combinations and Pascal’s triangle","Fast doubling for Fibonacci","Matrix exponentiation","Catalan numbers","Inclusion–exclusion principle","Pigeonhole principle","Probability and expected value","Randomized algorithm basics"]},
+ {id:"o", title:"O. Computational geometry", pri:"P2", items:["Orientation / cross product","Point-on-segment tests","Line-segment intersection","Convex hull: Graham scan","Convex hull: monotone chain","Closest pair of points","Sweep line for geometric intersections","Rotating calipers","Point-in-polygon","Polygon area / shoelace formula"]},
+ {id:"p", title:"P. Advanced algorithm design and theory", pri:"P2", items:["Divide and conquer","Master theorem","Amortized analysis","Randomized quicksort / quickselect","Las Vegas vs Monte Carlo algorithm concepts","Bloom filters","Count-Min Sketch","HyperLogLog","Reservoir sampling","Boyer–Moore majority vote","Approximation algorithms","NP-hardness and NP-completeness concepts","Branch and bound","Min-cost max-flow","Advanced string automata"]},
+ {id:"q", title:"Q. Core data structures inventory", pri:"Mixed", items:["Dynamic arrays","Hash maps / dictionaries","Hash sets","Singly linked lists","Doubly linked lists","Stacks","Queues","Deques","Binary trees","Binary search trees","Balanced trees: AVL and Red-Black tree concepts","Binary heaps","Priority queues","Tries","Binary tries","Graphs: adjacency lists and matrices","Disjoint Set Union","Fenwick trees","Segment trees","Sparse tables","Monotonic stacks","Monotonic deques","Ordered maps and ordered sets","LRU cache","LFU cache","B-trees","B+ trees","Bloom filters","Persistent data structures","Order-statistics concepts"]},
+ {id:"r", title:"R. Complexity analysis and interview fundamentals", pri:"P0", items:["Big-O, Big-Theta and Big-Omega","Best, average and worst-case analysis","Auxiliary space vs total space","Recursion-stack complexity","Amortized analysis","Expected vs worst-case hash-table complexity","Time-space trade-offs","Correctness arguments and loop invariants","Edge cases and integer overflow","Explain brute force before optimizing","Test representative and adversarial inputs"]},
+ {id:"ready", title:"Interview readiness", pri:"P0", items:["Explain and implement the common P0 patterns without looking up solutions","Recognize KMP/LPS, Z-algorithm, rolling hash and when string matching applies","Choose between BFS, Dijkstra, Bellman–Ford, topological sort and Union-Find","Solve common 1D/2D, knapsack, subsequence, interval and tree DP problems","Compare data structures by operation costs and trade-offs","Analyze complexity, correctness, edge cases and integer overflow","Prepare system design, databases, OS, networking, concurrency and behavioral examples"]},
+ {id:"gap1", gap:true, title:"Gaps: interview-critical patterns", pri:"P0", note:"Core interview patterns the original checklist leaves out.", items:["Two pointers: opposite ends (2Sum, 3Sum, container with most water)","Two pointers: same direction and partitioning","Sliding window: fixed size","Sliding window: variable size (shrink while invalid)","“At most K” trick: exactly(K) = atMost(K) − atMost(K−1)","Prefix sum + hash map (subarray sum = K, divisible by K)","Frequency maps and anagram grouping","Cyclic sort / index-as-hash (missing number, first missing positive)","2D prefix sums","Matrix manipulation (spiral order, rotate image, set zeroes)","Contribution technique with monotonic stack (sum of subarray minimums)","BFS on implicit state graphs (word ladder, open the lock)","Bidirectional BFS","State-augmented Dijkstra/BFS (K stops, obstacle elimination)","Game theory: minimax DP","Game theory: Nim and Sprague–Grundy","Design: Insert/Delete/GetRandom O(1)","Design: time-based key-value store","Design: hit counter and rate limiter","Design: iterators (peeking, flatten nested)","Concurrency: bounded blocking queue, print in order"]},
+ {id:"gap2", gap:true, title:"Gaps: Codeforces 1500 to 2000+", pri:"P1", note:"Techniques that come up often in Div. 2 C–E problems.", items:["Constructive algorithms","Factorial + inverse factorial precomputation, nCr mod p","Stars and bars, derangements, counting by complement","Smallest-prime-factor sieve and linear sieve","Euler’s totient","Divisor counting via harmonic series bound","√n distinct values of floor(n/i)","XOR basis (linear basis over GF(2))","Bitset optimization","SOS DP (sum over subsets)","Segment tree / BIT optimized DP transitions","Monotonic queue DP optimization","Weighted / parity DSU","DSU with rollback","Offline deletions as reversed unions","Small-to-large merging (DSU on tree / sack)","Functional graphs: cycles and binary lifting","2-SAT","Offline query sorting","Parallel binary search","Sqrt decomposition","Interactive problems","Stress testing against a brute force"]},
+ {id:"gap3", gap:true, title:"Gaps: advanced (2000+)", pri:"P2", note:"Study selectively once the earlier gaps are solid.", items:["FFT / NTT","Gaussian elimination","Möbius inversion","Lucas theorem","Miller–Rabin and Pollard’s rho","Li Chao tree","Aliens trick / WQS binary search","Slope trick","Broken-profile DP","CDQ divide and conquer","Biconnected components / block-cut tree","Hungarian algorithm","Kőnig’s theorem","Virtual (auxiliary) trees","Tree hashing","Booth’s algorithm (minimum rotation)"]}
+];
+
+const TIERS = [
+  {name:"Newbie", at:0, c:"--t0"},
+  {name:"Pupil", at:15, c:"--t1"},
+  {name:"Specialist", at:30, c:"--t2"},
+  {name:"Expert", at:50, c:"--t3"},
+  {name:"Candidate Master", at:70, c:"--t4"},
+  {name:"Master", at:85, c:"--t5"},
+  {name:"Grandmaster", at:100, c:"--t6"}
+];
+
+const KEY = "dsa-tracker-v1";
+const slug = s => s.replace(/\+/g," plus ").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+SECTIONS.forEach(s => s.items = s.items.map(name => ({name, id: s.id + ":" + slug(name)})));
+const TOTAL = SECTIONS.reduce((n,s)=>n+s.items.length,0);
+
+let state = {done:{}, flag:{}, collapsed:{}};
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ const p = JSON.parse(raw); state = {done:p.done||{}, flag:p.flag||{}, collapsed:p.collapsed||{}}; }
+  }catch(e){ /* storage unavailable; start fresh */ }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ /* ignore */ }
+}
+
+const $ = id => document.getElementById(id);
+const secEls = {}, itemEls = {}, tocEls = {};
+
+function render(){
+  const root = $("sections"), toc = $("toc");
+  root.innerHTML = ""; toc.innerHTML = "";
+  let addedGapHeading = false;
+  const h = document.createElement("h3"); h.textContent = "Checklist"; toc.appendChild(h);
+
+  SECTIONS.forEach(s => {
+    if(s.gap && !addedGapHeading){
+      const g = document.createElement("h3"); g.textContent = "Gaps"; toc.appendChild(g); addedGapHeading = true;
+    }
+    const a = document.createElement("a");
+    a.href = "#sec-" + s.id;
+    const t = document.createElement("span"); t.textContent = s.title.replace(/^[A-R]\.\s|^Gaps:\s/, "");
+    const n = document.createElement("span"); n.className = "n";
+    a.append(t, n); toc.appendChild(a); tocEls[s.id] = {a, n};
+
+    const sec = document.createElement("section");
+    sec.id = "sec-" + s.id;
+    if(s.gap) sec.classList.add("gap");
+    if(state.collapsed[s.id]) sec.classList.add("collapsed");
+
+    const head = document.createElement("div"); head.className = "sec-head";
+    const tog = document.createElement("button"); tog.className = "toggle";
+    tog.setAttribute("aria-expanded", String(!state.collapsed[s.id]));
+    const chev = document.createElement("span"); chev.className = "chev";
+    const h2 = document.createElement("h2"); h2.textContent = s.title;
+    tog.append(chev, h2);
+    tog.addEventListener("click", () => {
+      state.collapsed[s.id] = !state.collapsed[s.id];
+      sec.classList.toggle("collapsed", !!state.collapsed[s.id]);
+      tog.setAttribute("aria-expanded", String(!state.collapsed[s.id]));
+      save();
+    });
+    const pill = document.createElement("span"); pill.className = "pill " + s.pri; pill.textContent = s.pri;
+    const count = document.createElement("span"); count.className = "count";
+    head.append(tog, pill, count);
+
+    const bar = document.createElement("div"); bar.className = "sec-bar";
+    const fill = document.createElement("i"); bar.appendChild(fill);
+    sec.append(head, bar);
+
+    if(s.note){ const p = document.createElement("p"); p.className = "note"; p.textContent = s.note; sec.appendChild(p); }
+
+    const ul = document.createElement("ul");
+    s.items.forEach(it => {
+      const li = document.createElement("li");
+      const label = document.createElement("label");
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!state.done[it.id];
+      const name = document.createElement("span"); name.className = "name"; name.textContent = it.name;
+      label.append(cb, name);
+      const fl = document.createElement("button"); fl.className = "flag"; fl.type = "button";
+      fl.setAttribute("aria-label", "Flag “" + it.name + "” for revision");
+      li.append(label, fl);
+      li.classList.toggle("done", cb.checked);
+      setFlag(fl, !!state.flag[it.id]);
+
+      cb.addEventListener("change", () => {
+        if(cb.checked) state.done[it.id] = true; else delete state.done[it.id];
+        li.classList.toggle("done", cb.checked);
+        save(); update(); applyFilters();
+      });
+      fl.addEventListener("click", () => {
+        const on = !state.flag[it.id];
+        if(on) state.flag[it.id] = true; else delete state.flag[it.id];
+        setFlag(fl, on); save(); update(); applyFilters();
+      });
+      ul.appendChild(li);
+      itemEls[it.id] = {li, cb, name: it.name.toLowerCase(), sec: s};
+    });
+    sec.appendChild(ul);
+    root.appendChild(sec);
+    secEls[s.id] = {sec, count, fill};
+  });
+
+  // tier ticks and labels
+  const track = $("track"), tiers = $("tiers");
+  track.querySelectorAll(".tick").forEach(t => t.remove());
+  tiers.innerHTML = "";
+  TIERS.slice(1, -1).forEach(t => {
+    const tick = document.createElement("div"); tick.className = "tick"; tick.style.left = t.at + "%"; track.appendChild(tick);
+    const lab = document.createElement("span"); lab.style.left = t.at + "%"; lab.textContent = t.name; tiers.appendChild(lab);
+  });
+}
+
+function setFlag(btn, on){
+  btn.textContent = on ? "★" : "☆";
+  btn.setAttribute("aria-pressed", String(on));
+  btn.title = on ? "Flagged for revision" : "Flag for revision";
+}
+
+function update(){
+  let done = 0; const byPri = {P0:[0,0], P1:[0,0], P2:[0,0]};
+  SECTIONS.forEach(s => {
+    let d = 0;
+    s.items.forEach(it => { if(state.done[it.id]) d++; });
+    done += d;
+    if(byPri[s.pri]){ byPri[s.pri][0] += d; byPri[s.pri][1] += s.items.length; }
+    const e = secEls[s.id];
+    e.count.textContent = d + " / " + s.items.length;
+    e.fill.style.width = (100 * d / s.items.length) + "%";
+    tocEls[s.id].n.textContent = d + "/" + s.items.length;
+    tocEls[s.id].a.classList.toggle("complete", d === s.items.length);
+  });
+  const pct = TOTAL ? Math.floor(100 * done / TOTAL) : 0;
+  let tier = TIERS[0], next = null;
+  for(let i = 0; i < TIERS.length; i++){
+    const reached = TIERS[i].at === 100 ? done === TOTAL : pct >= TIERS[i].at;
+    if(reached){ tier = TIERS[i]; next = TIERS[i+1] || null; }
+  }
+  document.documentElement.style.setProperty("--tier", "var(" + tier.c + ")");
+  $("rank").textContent = tier.name;
+  $("fill").style.width = (100 * done / TOTAL) + "%";
+  let sub = "<strong>" + done + "</strong> of " + TOTAL + " topics done (" + pct + "%).";
+  if(next){
+    const need = next.at === 100 ? TOTAL - done : Math.max(1, Math.ceil(next.at * TOTAL / 100) - done);
+    sub += " " + need + " more to reach " + next.name + ".";
+  } else {
+    sub += " Everything is ticked.";
+  }
+  $("rankSub").innerHTML = sub;
+
+  const flagged = Object.keys(state.flag).length;
+  const stats = $("stats"); stats.innerHTML = "";
+  [["P0", byPri.P0], ["P1", byPri.P1], ["P2", byPri.P2]].forEach(([k, v]) => {
+    const d = document.createElement("div"); d.className = "stat";
+    const b = document.createElement("b"); b.textContent = v[0] + "/" + v[1];
+    const sp = document.createElement("span"); sp.textContent = k + " done";
+    d.append(b, sp); stats.appendChild(d);
+  });
+  const f = document.createElement("div"); f.className = "stat";
+  const fb = document.createElement("b"); fb.textContent = flagged;
+  const fs = document.createElement("span"); fs.textContent = "Flagged";
+  f.append(fb, fs); stats.appendChild(f);
+}
+
+function applyFilters(){
+  const q = $("q").value.trim().toLowerCase();
+  const show = $("show").value, pri = $("pri").value;
+  let anyVisible = false;
+  SECTIONS.forEach(s => {
+    const priOk = pri === "all" || s.pri === pri;
+    let vis = 0;
+    s.items.forEach(it => {
+      const e = itemEls[it.id];
+      const d = !!state.done[it.id], fl = !!state.flag[it.id];
+      const ok = priOk && (!q || e.name.includes(q)) &&
+        (show === "all" || (show === "remaining" && !d) || (show === "done" && d) || (show === "flagged" && fl));
+      e.li.hidden = !ok; if(ok) vis++;
+    });
+    const se = secEls[s.id].sec;
+    se.hidden = vis === 0;
+    se.classList.toggle("force-open", !!q || show !== "all");
+    tocEls[s.id].a.hidden = vis === 0;
+    if(vis) anyVisible = true;
+  });
+  $("empty").hidden = anyVisible;
+}
+
+function setAllCollapsed(v){
+  SECTIONS.forEach(s => {
+    if(v) state.collapsed[s.id] = true; else delete state.collapsed[s.id];
+    const se = secEls[s.id].sec;
+    se.classList.toggle("collapsed", v);
+    se.querySelector(".toggle").setAttribute("aria-expanded", String(!v));
+  });
+  save();
+}
+
+$("q").addEventListener("input", applyFilters);
+$("show").addEventListener("change", applyFilters);
+$("pri").addEventListener("change", applyFilters);
+$("expandAll").addEventListener("click", () => setAllCollapsed(false));
+$("collapseAll").addEventListener("click", () => setAllCollapsed(true));
+
+$("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify({version:1, exported:new Date().toISOString(), ...state}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "dsa-progress-" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", e => {
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const p = JSON.parse(r.result);
+      if(typeof p !== "object" || !p.done) throw new Error("bad file");
+      if(!confirm("Replace your current progress with the imported file?")) return;
+      state = {done:p.done||{}, flag:p.flag||{}, collapsed:p.collapsed||{}};
+      save(); render(); update(); applyFilters();
+    }catch(err){
+      alert("That file isn’t a progress export from this tracker. Choose a .json file made with Export progress.");
+    }
+    e.target.value = "";
+  };
+  r.readAsText(file);
+});
+$("resetBtn").addEventListener("click", () => {
+  if(!confirm("Clear all ticks and flags? Export first if you want a backup.")) return;
+  state = {done:{}, flag:{}, collapsed:{}};
+  save(); render(); update(); applyFilters();
+});
+
+load(); render(); update(); applyFilters();
+</script>
+</body>
+</html>
