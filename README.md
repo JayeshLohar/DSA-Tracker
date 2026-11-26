@@ -1,126 +1,121 @@
-# DSA Prep Tracker
- 
-A single-file, offline checklist for tracking Data Structures & Algorithms preparation for FAANG-level interviews and competitive programming (Codeforces 1500 → 2000+).
- 
-Open the HTML file in a browser, tick topics as you master them, and watch your rank climb from **Newbie** to **Grandmaster**.
- 
+# DSA Prep Trackers
+
+Two offline checklists for coding-interview and competitive programming preparation. Each is a single HTML file: no install, no server, no dependencies. Open it in a browser, tick items as you master them, and track your progress over time.
+
+| File | What it tracks | Items |
+|---|---|---|
+| `dsa-tracker.html` | Algorithms, data structures and problem-solving patterns, tagged P0 / P1 / P2 | 383 |
+| `design-tracker.html` | Data-structure and low-level design questions, tagged Easy / Medium / Hard | 168 |
+
 ---
- 
+
 ## Features
- 
-- **383 topics across 22 sections**: arrays, strings, linked lists, trees, graphs, DP, greedy, bit manipulation, number theory, geometry, range-query structures and more
-- **Gap sections**: interview-critical patterns, Codeforces-specific techniques and advanced 2000+ topics not covered in most standard checklists
-- **Priority tags** (P0 / P1 / P2) to focus on what matters first
-- **Codeforces-style rank** based on overall completion, with a progress bar and "topics to next rank" hint
-- **Flag for revision** (☆) to mark topics you want to revisit
-- **Search and filters** by name, status (remaining, completed, flagged) and priority
-- **Per-section progress** with a sidebar for quick navigation
-- **Auto-saves** progress in your browser (`localStorage`)
-- **Export / import** progress as JSON for backups or moving between machines
+
+- **Checkboxes with progress bars** for every section, plus an overall progress bar
+- **Codeforces-style rank** (Newbie → Pupil → Specialist → Expert → Candidate Master → Master → Grandmaster) based on how much you've completed
+- **Flag for revision** with ☆ on any item you want to revisit
+- **Search and filters** by name, status (remaining, completed, flagged) and priority or difficulty
+- **Sidebar navigation** to jump between sections, with collapsible sections
+- **Auto-save** in your browser, so your ticks are still there next time
+- **Export / import** progress as a JSON file for backups or moving to another machine
 - **Light and dark mode** that follows your system setting
-- **Zero dependencies**: one HTML file, no build step, no server
+
 ---
- 
+
+## What's inside
+
+### DSA tracker
+
+Covers the core topics from a FAANG-level DSA checklist:
+
+- Arrays, searching and sorting
+- Strings (KMP, Z-algorithm, rolling hash, suffix arrays)
+- Linked lists, stacks, queues and monotonic structures
+- Binary search, trees, heaps and tries
+- Graphs (BFS/DFS, shortest paths, Union-Find, MST, SCC, flows)
+- Range queries (Fenwick tree, segment tree, sparse table)
+- Recursion, backtracking, greedy and intervals
+- Dynamic programming, from 1D/2D up to DP optimizations
+- Bit manipulation, number theory and computational geometry
+- Complexity analysis and interview fundamentals
+
+It also includes three **gap sections** for topics often missing from standard lists: interview-critical patterns (two pointers, sliding window, prefix sum + hash map, design-style problems), Codeforces 1500 → 2000+ techniques, and advanced 2000+ topics.
+
+**Priorities:** P0 = must master, P1 = important, P2 = advanced or specialized.
+
+### Design tracker
+
+Covers "design a class / data structure" questions common in interviews:
+
+- **Easy:** stacks, queues, HashMap, circular queue, heaps, rate logger
+- **Medium:** LRU Cache, Twitter, Time-Based KV Store, iterators, calendars, Snapshot Array; low-level design such as TTL cache, transactions, parking lot, order book and Splitwise; concurrency problems such as Print in Order and Producer-Consumer
+- **Hard:** LFU Cache, All O(1), Autocomplete, Range Module, Skiplist, text editor, in-memory file system; advanced systems such as LSM tree, consistent hashing, thread pool and matching engine
+
+---
+
 ## Getting started
- 
-### Run locally
- 
+
 ```bash
 git clone https://github.com/<your-username>/<repo-name>.git
 cd <repo-name>
 ```
- 
-Then open `dsa-tracker.html` in any modern browser (Chrome, Firefox, Edge, Safari).
- 
+
+Open `dsa-tracker.html` or `design-tracker.html` in Chrome, Firefox, Edge or Safari.
+
 ### Host on GitHub Pages (optional)
- 
-1. Rename `dsa-tracker.html` to `index.html`.
-2. Go to **Settings → Pages** in your repository.
-3. Under **Build and deployment**, choose **Deploy from a branch**, select `main` and `/ (root)`, then save.
-4. Your tracker will be live at `https://<your-username>.github.io/<repo-name>/`.
+
+1. Go to **Settings → Pages** in the repository.
+2. Choose **Deploy from a branch**, select `main` and `/ (root)`, and save.
+3. Open `https://<your-username>.github.io/<repo-name>/dsa-tracker.html` (or `design-tracker.html`).
+
 ---
- 
+
 ## How to use
- 
-1. Tick a topic only when you can **explain it**, **recognize when to use it**, **implement it without help** and **state its time and space complexity**.
-2. Flag topics with ☆ that need another pass.
-3. Use **Remaining** + **P0 only** filters to see what to study next.
-4. Click **Export progress** regularly to save a backup `.json` file.
-> **Note:** Progress is stored in the browser you open the file in. Clearing browser data or switching browsers starts fresh, so keep an exported backup.
- 
+
+1. **Tick an item only when you've truly learned it.**
+   - For a DSA topic, you can explain it, recognize when to use it, implement it without help, and state its complexity.
+   - For a design question, you can define the API, choose the data structures, justify each operation's complexity, and code it cleanly.
+2. **Flag with ☆** anything that needs another pass.
+3. **Filter by Remaining + P0 (or Easy)** to decide what to study next.
+4. **Export progress regularly** to keep a backup.
+
+> **Note:** Progress is saved in the browser where you open the file. Clearing browser data or switching browsers starts fresh, so keep an exported backup. The two trackers save progress separately.
+
 ---
- 
-## Coverage
- 
-| Section | Priority |
-|---|---|
-| A. Arrays, searching and sorting | P0 |
-| B. String algorithms | P1 |
-| C. Linked lists, stacks and queues | P0 |
-| D. Binary search and search patterns | P0 |
-| E. Trees and binary search trees | P0 |
-| F. Heaps and priority queues | P0 |
-| G. Graph algorithms | P0 |
-| H. Tries and prefix structures | P1 |
-| I. Range queries and specialized data structures | P1 |
-| J. Recursion and backtracking | P0 |
-| K. Greedy algorithms and intervals | P0 |
-| L. Dynamic programming | P0 |
-| M. Bit manipulation | P1 |
-| N. Math and number theory | P1 |
-| O. Computational geometry | P2 |
-| P. Advanced algorithm design and theory | P2 |
-| Q. Core data structures inventory | Mixed |
-| R. Complexity analysis and interview fundamentals | P0 |
-| Interview readiness | P0 |
-| Gaps: interview-critical patterns | P0 |
-| Gaps: Codeforces 1500 to 2000+ | P1 |
-| Gaps: advanced (2000+) | P2 |
- 
-### Rank tiers
- 
-| Completion | Rank |
-|---|---|
-| 0–14% | Newbie |
-| 15–29% | Pupil |
-| 30–49% | Specialist |
-| 50–69% | Expert |
-| 70–84% | Candidate Master |
-| 85–99% | Master |
-| 100% | Grandmaster |
- 
----
- 
+
 ## Suggested study order
- 
+
 | Phase | Focus | Time |
 |---|---|---|
-| 1 | Arrays, strings, hashing, two pointers, sliding windows, binary search, linked lists, stacks and queues | 2–3 weeks |
-| 2 | Trees, heaps, graph traversal, shortest paths, Union-Find | 2–3 weeks |
-| 3 | DP, greedy, backtracking, intervals, string algorithms, range-query structures | 3–4 weeks |
+| 1 | Arrays, strings, hashing, two pointers, sliding window, binary search, linked lists, stacks, queues; Easy design questions | 2–3 weeks |
+| 2 | Trees, heaps, graph traversal, shortest paths, Union-Find; Medium design questions | 2–3 weeks |
+| 3 | DP, greedy, backtracking, intervals, string algorithms, range queries; Hard design questions | 3–4 weeks |
 | 4 | Timed practice, mixed problems, revision and mock interviews | 2 weeks + ongoing |
- 
+
 ---
- 
+
 ## Customizing
- 
-All topics live in the `SECTIONS` array inside the `<script>` tag of the HTML file. To add a topic, append a string to a section's `items` list. To add a section, add a new object:
- 
+
+All items live in the `SECTIONS` array inside each file's `<script>` tag. To add an item, append a string to a section's `items` list. To add a section:
+
 ```js
-{ id: "my-section", title: "My new section", pri: "P1", items: ["Topic one", "Topic two"] }
+{ id: "my-section", title: "My new section", pri: "P1", items: ["Item one", "Item two"] }
 ```
- 
-Keep each section `id` unique. Renaming an existing topic resets its saved tick, since progress is keyed by topic name.
- 
+
+Keep each section `id` unique. Renaming an item resets its saved tick, because progress is keyed by name.
+
 ---
- 
+
 ## Resources
- 
-- [LeetCode problem set](https://leetcode.com/problemset/)
+
+- [LeetCode](https://leetcode.com/problemset/)
 - [NeetCode roadmap](https://neetcode.io/roadmap)
 - [Codeforces](https://codeforces.com/)
 - [CP-Algorithms](https://cp-algorithms.com/)
 - [Google Interview University](https://github.com/jwasham/coding-interview-university)
-- [GeeksforGeeks](https://www.geeksforgeeks.org/)
 
- 
+---
+
+## License
+
+MIT
