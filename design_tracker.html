@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design questions tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#1B2130; --muted:#5F6878; --line:#DFE3EA; --hover:#EEF1F6;
+  --accent:#3D63DD; --p0:#B4410F; --p1:#1D4ED8; --p2:#6D28D9; --star:#D99A00;
+  --t0:#7D838E; --t1:#2E9E46; --t2:#0F9C98; --t3:#3D63DD; --t4:#9B3FC4; --t5:#DB8400; --t6:#E0383B;
+  --display:"Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#12151C; --surface:#1A1E27; --ink:#E7E9EE; --muted:#9AA2B1; --line:#2B313D; --hover:#222834;
+    --accent:#7C9BFF; --p0:#FB923C; --p1:#7AA2FF; --p2:#B794F6; --star:#F5C04A;
+    --t0:#A0A6B0; --t1:#4CC266; --t2:#2CC4BF; --t3:#7C9BFF; --t4:#C57AE8; --t5:#F2A32E; --t6:#FF6467;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5;
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+button,input,select{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+.wrap{max-width:1120px; margin:0 auto; padding:0 20px}
+
+/* Hero: the rank is the one bold element */
+.hero{padding:calc(36px + env(safe-area-inset-top,0px)) 0 24px}
+.hero h1{font-family:var(--display); font-weight:600; font-size:17px; margin:0 0 18px; color:var(--muted)}
+.rank-row{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px 32px}
+.rank{font-family:var(--display); font-weight:700; font-size:clamp(40px,7vw,68px); line-height:1; letter-spacing:-0.02em;
+  color:var(--tier); transition:color .4s}
+.rank-sub{color:var(--muted); margin-top:10px}
+.rank-sub strong{color:var(--ink); font-weight:700}
+.stats{display:flex; gap:22px; flex-wrap:wrap}
+.stat{min-width:64px}
+.stat b{display:block; font-family:var(--display); font-size:20px; font-weight:600}
+.stat span{font-size:13px; color:var(--muted)}
+
+.track{position:relative; height:10px; background:var(--line); border-radius:5px; margin-top:22px; overflow:hidden}
+.track .fill{position:absolute; inset:0 auto 0 0; width:0; background:var(--tier); border-radius:5px; transition:width .35s, background .4s}
+.track .tick{position:absolute; top:0; bottom:0; width:2px; background:var(--bg)}
+.tiers{position:relative; height:18px; font-size:12px; color:var(--muted); margin-top:6px}
+.tiers span{position:absolute; transform:translateX(-50%); white-space:nowrap}
+@media (max-width:640px){ .tiers{display:none} }
+
+/* Toolbar */
+.toolbar{position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px)}
+.toolbar .wrap{display:flex; flex-wrap:wrap; gap:10px; padding-top:12px; padding-bottom:12px; align-items:center}
+.search{flex:1 1 220px; min-width:180px; padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+select{padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface)}
+.btn{padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); cursor:pointer}
+.btn:hover{background:var(--hover)}
+.btn.danger{color:var(--p0)}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+
+/* Layout */
+.layout{display:grid; grid-template-columns:230px 1fr; gap:32px; padding-top:24px; padding-bottom:64px}
+.toc{position:sticky; top:76px; align-self:start; max-height:calc(100vh - 96px); overflow:auto}
+.toc a{display:flex; justify-content:space-between; gap:8px; padding:6px 10px; border-radius:6px; color:var(--muted);
+  text-decoration:none; font-size:13.5px}
+.toc a:hover{background:var(--hover); color:var(--ink)}
+.toc a.complete{color:var(--t1)}
+.toc .n{font-variant-numeric:tabular-nums}
+.toc h3{font-family:var(--display); font-size:13px; font-weight:600; color:var(--muted); margin:16px 10px 6px}
+.toc h3:first-child{margin-top:0}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr; gap:12px}
+  .toc{position:static; max-height:none; display:flex; overflow-x:auto; gap:4px; padding-bottom:6px}
+  .toc h3{display:none}
+  .toc a{flex:0 0 auto; border:1px solid var(--line); background:var(--surface)}
+}
+
+/* Sections */
+section{background:var(--surface); border:1px solid var(--line); border-radius:12px; margin-bottom:18px; scroll-margin-top:80px}
+section.gap{border-left:4px solid var(--accent)}
+.sec-head{display:flex; align-items:center; gap:12px; padding:14px 18px}
+.toggle{flex:1; display:flex; align-items:center; gap:10px; background:none; border:0; padding:0; text-align:left; cursor:pointer}
+.toggle h2{font-family:var(--display); font-size:18px; font-weight:600; margin:0; line-height:1.3}
+.chev{width:10px; height:10px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted);
+  transform:rotate(45deg); transition:transform .2s; flex:0 0 auto; margin:0 4px 4px 2px}
+section.collapsed .chev{transform:rotate(-45deg); margin-bottom:0}
+.pill{font-size:12px; font-weight:700; padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap}
+.pill.P0{color:var(--p0)} .pill.P1{color:var(--p1)} .pill.P2{color:var(--p2)} .pill.Mixed{color:var(--muted)}
+.count{font-variant-numeric:tabular-nums; color:var(--muted); font-size:14px; white-space:nowrap}
+.sec-bar{height:3px; background:var(--line); margin:0 18px}
+.sec-bar i{display:block; height:100%; width:0; background:var(--t1); transition:width .3s}
+.note{color:var(--muted); font-size:13.5px; margin:10px 18px 0}
+ul{list-style:none; margin:0; padding:8px 8px 12px}
+section.collapsed:not(.force-open) ul, section.collapsed:not(.force-open) .note{display:none}
+li{display:flex; align-items:center; gap:4px; border-radius:8px}
+li:hover{background:var(--hover)}
+li label{flex:1; display:flex; align-items:center; gap:12px; padding:8px 10px; cursor:pointer}
+li input{width:18px; height:18px; accent-color:var(--t1); flex:0 0 auto; cursor:pointer}
+li.done .name{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); text-decoration-thickness:1.5px}
+.flag{background:none; border:0; cursor:pointer; font-size:17px; color:var(--line); padding:6px 10px; line-height:1}
+.flag:hover{color:var(--star)}
+.flag[aria-pressed="true"]{color:var(--star)}
+[hidden]{display:none !important}
+.empty{text-align:center; color:var(--muted); padding:48px 16px}
+.legend{color:var(--muted); font-size:13.5px; margin:0 0 14px}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1>Design questions tracker</h1>
+  <div class="rank-row">
+    <div>
+      <div class="rank" id="rank">Newbie</div>
+      <div class="rank-sub" id="rankSub"></div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+  <div class="track" id="track"><div class="fill" id="fill"></div></div>
+  <div class="tiers" id="tiers"></div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <label class="sr" for="q">Search questions</label>
+    <input id="q" class="search" type="search" placeholder="Search questions, e.g. LRU Cache">
+    <label class="sr" for="show">Show</label>
+    <select id="show">
+      <option value="all">All questions</option>
+      <option value="remaining">Remaining</option>
+      <option value="done">Completed</option>
+      <option value="flagged">Flagged for revision</option>
+    </select>
+    <label class="sr" for="pri">Priority</label>
+    <select id="pri">
+      <option value="all">All difficulties</option>
+      <option value="P0">Easy only</option>
+      <option value="P1">Medium only</option>
+      <option value="P2">Hard only</option>
+    </select>
+    <button class="btn" id="expandAll">Expand all</button>
+    <button class="btn" id="collapseAll">Collapse all</button>
+    <button class="btn" id="exportBtn">Export progress</button>
+    <button class="btn" id="importBtn">Import progress</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+    <button class="btn danger" id="resetBtn">Reset</button>
+  </div>
+</div>
+
+<div class="layout wrap">
+  <nav class="toc" id="toc" aria-label="Sections"></nav>
+  <main>
+    <p class="legend">Tick a question once you can design it from scratch: state the API, pick the data structures, justify each operation’s complexity, and code it cleanly. Use ☆ to flag a question for revision.</p>
+    <div id="sections"></div>
+    <div class="empty" id="empty" hidden>No questions match. Clear the search or change the filters.</div>
+  </main>
+</div>
+
+<script>
+const SECTIONS = [
+ {
+  "id": "easy",
+  "title": "Easy: foundational designs",
+  "pri": "P0",
+  "items": [
+   "Implement Stack using Queues",
+   "Implement Queue using Stacks",
+   "Implement Stack using Array / Linked List",
+   "Implement Queue using Array / Linked List",
+   "Implement Two Stacks in One Array",
+   "Implement K Stacks in One Array",
+   "Implement K Queues in One Array",
+   "Min Stack",
+   "Max Stack (basic version)",
+   "Design HashMap",
+   "Design HashSet",
+   "Design Circular Queue",
+   "Design Circular Deque",
+   "Design Linked List",
+   "Design Doubly Linked List",
+   "Design Dynamic Array (ArrayList / Vector)",
+   "Design Parking System",
+   "Moving Average from Data Stream",
+   "Kth Largest Element in a Stream",
+   "Number of Recent Calls",
+   "Two Sum Data Structure (add / find)",
+   "Logger Rate Limiter",
+   "Range Sum Query – Immutable",
+   "Design an Ordered Stream",
+   "Design Compressed String Iterator",
+   "Design Bitset",
+   "Design Neighbor Sum Service",
+   "Design Priority Queue using Heap",
+   "Design Binary Heap (Min / Max)",
+   "Implement Deque using Doubly Linked List"
+  ]
+ },
+ {
+  "id": "med",
+  "title": "Medium: classic design problems",
+  "pri": "P1",
+  "items": [
+   "LRU Cache",
+   "Insert Delete GetRandom O(1)",
+   "Design Twitter",
+   "Time-Based Key-Value Store",
+   "Implement Trie (Prefix Tree)",
+   "Design Add and Search Words Data Structure",
+   "Design Hit Counter",
+   "Design Tic-Tac-Toe",
+   "Design Browser History",
+   "Design Underground System",
+   "Online Stock Span",
+   "Snapshot Array",
+   "Binary Search Tree Iterator",
+   "Flatten Nested List Iterator",
+   "Peeking Iterator",
+   "Zigzag Iterator",
+   "Flatten 2D Vector",
+   "Iterator for Combination",
+   "RLE Iterator",
+   "Range Sum Query – Mutable",
+   "Range Sum Query 2D – Immutable",
+   "Design Snake Game",
+   "Design Phone Directory",
+   "Design File System",
+   "Design Leaderboard",
+   "Seat Reservation Manager",
+   "Design Authentication Manager",
+   "Design a Stack With Increment Operation",
+   "Design Front Middle Back Queue",
+   "Design Most Recently Used Queue",
+   "Encode and Decode TinyURL",
+   "Encode and Decode Strings",
+   "Design Food Rating System",
+   "Design a Number Container System",
+   "Smallest Number in Infinite Set",
+   "Stock Price Fluctuation",
+   "Product of the Last K Numbers",
+   "Tweet Counts Per Frequency",
+   "Detect Squares",
+   "My Calendar I",
+   "My Calendar II",
+   "Exam Room",
+   "Random Pick with Weight",
+   "Random Pick Index",
+   "Shuffle an Array",
+   "Implement Magic Dictionary",
+   "Map Sum Pairs",
+   "Design Log Storage System",
+   "Design an ATM Machine",
+   "Design Memory Allocator",
+   "Design Task Manager",
+   "Design Spreadsheet",
+   "Design Router",
+   "Serialize and Deserialize BST",
+   "Find Elements in a Contaminated Binary Tree"
+  ]
+ },
+ {
+  "id": "medlld",
+  "title": "Medium: data structures and low-level design",
+  "pri": "P1",
+  "items": [
+   "Design Rate Limiter (Token Bucket / Sliding Window)",
+   "Design Bounded Blocking Queue",
+   "Design Disjoint Set (Union-Find)",
+   "Design Segment Tree",
+   "Design Fenwick Tree (Binary Indexed Tree)",
+   "Design Sparse Table",
+   "Design Bloom Filter",
+   "Design Consistent Hashing Ring",
+   "Design TTL Cache (Key-Value with Expiry)",
+   "Design Key-Value Store with Transactions (begin / commit / rollback)",
+   "Design Versioned Key-Value Store",
+   "Design Undo / Redo System",
+   "Design Elevator Scheduler",
+   "Design Job Scheduler / Task Scheduler",
+   "Design Event Booking System",
+   "Design Inventory Management System",
+   "Design Order Book (Buy / Sell Matching)",
+   "Design Parking Lot (multi-level)",
+   "Design Library Management System",
+   "Design Vending Machine",
+   "Design Splitwise (Expense Sharing)",
+   "Design Chat Message Store",
+   "Design Notification Queue"
+  ]
+ },
+ {
+  "id": "medconc",
+  "title": "Medium: concurrency",
+  "pri": "P1",
+  "items": [
+   "Print in Order",
+   "Print FooBar Alternately",
+   "Print Zero Even Odd",
+   "Building H2O",
+   "Dining Philosophers",
+   "Thread-Safe Counter / Singleton",
+   "Producer–Consumer Queue"
+  ]
+ },
+ {
+  "id": "hard",
+  "title": "Hard: classic design problems",
+  "pri": "P2",
+  "items": [
+   "LFU Cache",
+   "Find Median from Data Stream",
+   "All O(1) Data Structure",
+   "Design Search Autocomplete System",
+   "Serialize and Deserialize Binary Tree",
+   "Serialize and Deserialize N-ary Tree",
+   "Maximum Frequency Stack",
+   "Max Stack (with popMax)",
+   "Insert Delete GetRandom O(1) – Duplicates Allowed",
+   "Dinner Plate Stacks",
+   "Finding MK Average",
+   "Sliding Window Median",
+   "Sequentially Ordinal Rank Tracker",
+   "Data Stream as Disjoint Intervals",
+   "Range Module",
+   "My Calendar III",
+   "Count Integers in Intervals",
+   "Range Sum Query 2D – Mutable",
+   "Online Majority Element in Subarray",
+   "Booking Concert Tickets in Groups",
+   "Prefix and Suffix Search",
+   "Stream of Characters",
+   "Design a Text Editor",
+   "Design In-Memory File System",
+   "Design Excel Sum Formula",
+   "Design Skiplist",
+   "Design Movie Rental System",
+   "Design Video Sharing Platform",
+   "Design Graph With Shortest Path Calculator",
+   "Design SQL / In-Memory Database"
+  ]
+ },
+ {
+  "id": "hardadv",
+  "title": "Hard: advanced structures and systems",
+  "pri": "P2",
+  "items": [
+   "Design Persistent Segment Tree",
+   "Design Persistent Stack / Queue",
+   "Design Interval Tree",
+   "Design Order Statistic Tree (rank / select)",
+   "Design Self-Balancing BST (AVL / Red-Black)",
+   "Design B-Tree / B+ Tree",
+   "Design LSM Tree (Key-Value Storage Engine)",
+   "Design Rope (Large Text Editing)",
+   "Design Suffix Array / Suffix Tree",
+   "Design Count-Min Sketch",
+   "Design HyperLogLog (Approximate Count)",
+   "Design Top-K Frequent Items in Stream (Heavy Hitters)",
+   "Design Distributed Rate Limiter",
+   "Design Concurrent HashMap",
+   "Design Lock-Free Queue",
+   "Design Memory Pool / Garbage Collector (basic)",
+   "Design Thread Pool",
+   "Web Crawler Multithreaded",
+   "Design Real-Time Leaderboard with Rank Queries",
+   "Design Stock Exchange Matching Engine",
+   "Design Text Search Engine (Inverted Index)",
+   "Design Version Control System (Git-like)",
+   "Design Undo Tree with Branching"
+  ]
+ }
+];
+
+const TIERS = [
+  {name:"Newbie", at:0, c:"--t0"},
+  {name:"Pupil", at:15, c:"--t1"},
+  {name:"Specialist", at:30, c:"--t2"},
+  {name:"Expert", at:50, c:"--t3"},
+  {name:"Candidate Master", at:70, c:"--t4"},
+  {name:"Master", at:85, c:"--t5"},
+  {name:"Grandmaster", at:100, c:"--t6"}
+];
+
+const KEY = "design-tracker-v1";
+const slug = s => s.replace(/\+/g," plus ").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+SECTIONS.forEach(s => s.items = s.items.map(name => ({name, id: s.id + ":" + slug(name)})));
+const TOTAL = SECTIONS.reduce((n,s)=>n+s.items.length,0);
+
+let state = {done:{}, flag:{}, collapsed:{}};
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ const p = JSON.parse(raw); state = {done:p.done||{}, flag:p.flag||{}, collapsed:p.collapsed||{}}; }
+  }catch(e){ /* storage unavailable; start fresh */ }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ /* ignore */ }
+}
+
+const $ = id => document.getElementById(id);
+const secEls = {}, itemEls = {}, tocEls = {};
+
+function render(){
+  const root = $("sections"), toc = $("toc");
+  root.innerHTML = ""; toc.innerHTML = "";
+  let addedGapHeading = false;
+  const h = document.createElement("h3"); h.textContent = "Difficulty"; toc.appendChild(h);
+
+  SECTIONS.forEach(s => {
+    if(s.gap && !addedGapHeading){
+      const g = document.createElement("h3"); g.textContent = "Gaps"; toc.appendChild(g); addedGapHeading = true;
+    }
+    const a = document.createElement("a");
+    a.href = "#sec-" + s.id;
+    const t = document.createElement("span"); t.textContent = s.title;
+    const n = document.createElement("span"); n.className = "n";
+    a.append(t, n); toc.appendChild(a); tocEls[s.id] = {a, n};
+
+    const sec = document.createElement("section");
+    sec.id = "sec-" + s.id;
+    if(s.gap) sec.classList.add("gap");
+    if(state.collapsed[s.id]) sec.classList.add("collapsed");
+
+    const head = document.createElement("div"); head.className = "sec-head";
+    const tog = document.createElement("button"); tog.className = "toggle";
+    tog.setAttribute("aria-expanded", String(!state.collapsed[s.id]));
+    const chev = document.createElement("span"); chev.className = "chev";
+    const h2 = document.createElement("h2"); h2.textContent = s.title;
+    tog.append(chev, h2);
+    tog.addEventListener("click", () => {
+      state.collapsed[s.id] = !state.collapsed[s.id];
+      sec.classList.toggle("collapsed", !!state.collapsed[s.id]);
+      tog.setAttribute("aria-expanded", String(!state.collapsed[s.id]));
+      save();
+    });
+    const pill = document.createElement("span"); pill.className = "pill " + s.pri; pill.textContent = ({P0:"Easy",P1:"Medium",P2:"Hard"})[s.pri] || s.pri;
+    const count = document.createElement("span"); count.className = "count";
+    head.append(tog, pill, count);
+
+    const bar = document.createElement("div"); bar.className = "sec-bar";
+    const fill = document.createElement("i"); bar.appendChild(fill);
+    sec.append(head, bar);
+
+    if(s.note){ const p = document.createElement("p"); p.className = "note"; p.textContent = s.note; sec.appendChild(p); }
+
+    const ul = document.createElement("ul");
+    s.items.forEach(it => {
+      const li = document.createElement("li");
+      const label = document.createElement("label");
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!state.done[it.id];
+      const name = document.createElement("span"); name.className = "name"; name.textContent = it.name;
+      label.append(cb, name);
+      const fl = document.createElement("button"); fl.className = "flag"; fl.type = "button";
+      fl.setAttribute("aria-label", "Flag “" + it.name + "” for revision");
+      li.append(label, fl);
+      li.classList.toggle("done", cb.checked);
+      setFlag(fl, !!state.flag[it.id]);
+
+      cb.addEventListener("change", () => {
+        if(cb.checked) state.done[it.id] = true; else delete state.done[it.id];
+        li.classList.toggle("done", cb.checked);
+        save(); update(); applyFilters();
+      });
+      fl.addEventListener("click", () => {
+        const on = !state.flag[it.id];
+        if(on) state.flag[it.id] = true; else delete state.flag[it.id];
+        setFlag(fl, on); save(); update(); applyFilters();
+      });
+      ul.appendChild(li);
+      itemEls[it.id] = {li, cb, name: it.name.toLowerCase(), sec: s};
+    });
+    sec.appendChild(ul);
+    root.appendChild(sec);
+    secEls[s.id] = {sec, count, fill};
+  });
+
+  // tier ticks and labels
+  const track = $("track"), tiers = $("tiers");
+  track.querySelectorAll(".tick").forEach(t => t.remove());
+  tiers.innerHTML = "";
+  TIERS.slice(1, -1).forEach(t => {
+    const tick = document.createElement("div"); tick.className = "tick"; tick.style.left = t.at + "%"; track.appendChild(tick);
+    const lab = document.createElement("span"); lab.style.left = t.at + "%"; lab.textContent = t.name; tiers.appendChild(lab);
+  });
+}
+
+function setFlag(btn, on){
+  btn.textContent = on ? "★" : "☆";
+  btn.setAttribute("aria-pressed", String(on));
+  btn.title = on ? "Flagged for revision" : "Flag for revision";
+}
+
+function update(){
+  let done = 0; const byPri = {P0:[0,0], P1:[0,0], P2:[0,0]};
+  SECTIONS.forEach(s => {
+    let d = 0;
+    s.items.forEach(it => { if(state.done[it.id]) d++; });
+    done += d;
+    if(byPri[s.pri]){ byPri[s.pri][0] += d; byPri[s.pri][1] += s.items.length; }
+    const e = secEls[s.id];
+    e.count.textContent = d + " / " + s.items.length;
+    e.fill.style.width = (100 * d / s.items.length) + "%";
+    tocEls[s.id].n.textContent = d + "/" + s.items.length;
+    tocEls[s.id].a.classList.toggle("complete", d === s.items.length);
+  });
+  const pct = TOTAL ? Math.floor(100 * done / TOTAL) : 0;
+  let tier = TIERS[0], next = null;
+  for(let i = 0; i < TIERS.length; i++){
+    const reached = TIERS[i].at === 100 ? done === TOTAL : pct >= TIERS[i].at;
+    if(reached){ tier = TIERS[i]; next = TIERS[i+1] || null; }
+  }
+  document.documentElement.style.setProperty("--tier", "var(" + tier.c + ")");
+  $("rank").textContent = tier.name;
+  $("fill").style.width = (100 * done / TOTAL) + "%";
+  let sub = "<strong>" + done + "</strong> of " + TOTAL + " questions done (" + pct + "%).";
+  if(next){
+    const need = next.at === 100 ? TOTAL - done : Math.max(1, Math.ceil(next.at * TOTAL / 100) - done);
+    sub += " " + need + " more to reach " + next.name + ".";
+  } else {
+    sub += " Everything is ticked.";
+  }
+  $("rankSub").innerHTML = sub;
+
+  const flagged = Object.keys(state.flag).length;
+  const stats = $("stats"); stats.innerHTML = "";
+  [["Easy", byPri.P0], ["Medium", byPri.P1], ["Hard", byPri.P2]].forEach(([k, v]) => {
+    const d = document.createElement("div"); d.className = "stat";
+    const b = document.createElement("b"); b.textContent = v[0] + "/" + v[1];
+    const sp = document.createElement("span"); sp.textContent = k + " done";
+    d.append(b, sp); stats.appendChild(d);
+  });
+  const f = document.createElement("div"); f.className = "stat";
+  const fb = document.createElement("b"); fb.textContent = flagged;
+  const fs = document.createElement("span"); fs.textContent = "Flagged";
+  f.append(fb, fs); stats.appendChild(f);
+}
+
+function applyFilters(){
+  const q = $("q").value.trim().toLowerCase();
+  const show = $("show").value, pri = $("pri").value;
+  let anyVisible = false;
+  SECTIONS.forEach(s => {
+    const priOk = pri === "all" || s.pri === pri;
+    let vis = 0;
+    s.items.forEach(it => {
+      const e = itemEls[it.id];
+      const d = !!state.done[it.id], fl = !!state.flag[it.id];
+      const ok = priOk && (!q || e.name.includes(q)) &&
+        (show === "all" || (show === "remaining" && !d) || (show === "done" && d) || (show === "flagged" && fl));
+      e.li.hidden = !ok; if(ok) vis++;
+    });
+    const se = secEls[s.id].sec;
+    se.hidden = vis === 0;
+    se.classList.toggle("force-open", !!q || show !== "all");
+    tocEls[s.id].a.hidden = vis === 0;
+    if(vis) anyVisible = true;
+  });
+  $("empty").hidden = anyVisible;
+}
+
+function setAllCollapsed(v){
+  SECTIONS.forEach(s => {
+    if(v) state.collapsed[s.id] = true; else delete state.collapsed[s.id];
+    const se = secEls[s.id].sec;
+    se.classList.toggle("collapsed", v);
+    se.querySelector(".toggle").setAttribute("aria-expanded", String(!v));
+  });
+  save();
+}
+
+$("q").addEventListener("input", applyFilters);
+$("show").addEventListener("change", applyFilters);
+$("pri").addEventListener("change", applyFilters);
+$("expandAll").addEventListener("click", () => setAllCollapsed(false));
+$("collapseAll").addEventListener("click", () => setAllCollapsed(true));
+
+$("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify({version:1, exported:new Date().toISOString(), ...state}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "dsa-progress-" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$("importBtn").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", e => {
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const p = JSON.parse(r.result);
+      if(typeof p !== "object" || !p.done) throw new Error("bad file");
+      if(!confirm("Replace your current progress with the imported file?")) return;
+      state = {done:p.done||{}, flag:p.flag||{}, collapsed:p.collapsed||{}};
+      save(); render(); update(); applyFilters();
+    }catch(err){
+      alert("That file isn’t a progress export from this tracker. Choose a .json file made with Export progress.");
+    }
+    e.target.value = "";
+  };
+  r.readAsText(file);
+});
+$("resetBtn").addEventListener("click", () => {
+  if(!confirm("Clear all ticks and flags? Export first if you want a backup.")) return;
+  state = {done:{}, flag:{}, collapsed:{}};
+  save(); render(); update(); applyFilters();
+});
+
+load(); render(); update(); applyFilters();
+</script>
+</body>
+</html>
